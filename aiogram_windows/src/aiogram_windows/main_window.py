@@ -166,7 +166,6 @@ class WindowBuilder:
 
         return None
 
-
     @classmethod
     def add_buttons(cls, *buttons: Union[InlineKeyboardButton, KeyboardButton]):
         for button in buttons:
