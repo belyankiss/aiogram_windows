@@ -19,7 +19,7 @@ BUTTON_TYPES = (
 
 
 class WindowBuilder(
-    MessageMethods,
+    # MessageMethods,
     CallbackQueryMethods
 ):
     text: str

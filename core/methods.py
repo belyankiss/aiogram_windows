@@ -82,7 +82,7 @@ class MessageMethods:
     ) -> Message:
         file_id = None
         formatted_photo = None
-        path_photo = photo if photo is not None else cls.photo
+        path_photo = photo if photo is not None else getattr(cls, "photo", None)
         if not path_photo:
             raise AttributeError("Photo can't be empty!")
         cached_file_id = use_cache(path_photo)
@@ -90,11 +90,7 @@ class MessageMethods:
             formatted_photo = await format_to_bytes_file(path_photo)
         else:
             file_id = cached_file_id
-
-        try:
-            text = getattr(cls, "text")
-        except AttributeError:
-            text = None
+        text = getattr(cls, "text", None)
         message = await event.answer_photo(
             photo=file_id if file_id else formatted_photo,
             caption=caption if caption is not None else text,
@@ -116,9 +112,9 @@ class MessageMethods:
             use_cache(path_photo, message.photo[0].file_id)
         return message
 
-class CallbackQueryMethods:
+class CallbackQueryMethods(MessageMethods):
     @classmethod
-    async def answer_callback(
+    async def show_alert(
             cls,
             event: CallbackQuery,
             text: str | None = None,
@@ -134,3 +130,46 @@ class CallbackQueryMethods:
             cache_time=cache_time,
             **kwargs
         )
+
+    @classmethod
+    async def answer_callback(
+            cls,
+            event: CallbackQuery,
+            text: str = None,
+            parse_mode: str | Default | None = Default("parse_mode"),
+            entities: list[MessageEntity] | None = None,
+            link_preview_options: LinkPreviewOptions | Default | None = Default(
+                "link_preview"
+            ),
+            disable_notification: bool | None = None,
+            protect_content: bool | Default | None = Default("protect_content"),
+            allow_paid_broadcast: bool | None = None,
+            message_effect_id: str | None = None,
+            reply_parameters: ReplyParameters | None = None,
+            reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply | None = None,
+            allow_sending_without_reply: bool | None = None,
+            disable_web_page_preview: bool | Default | None = Default(
+                "link_preview_is_disabled"
+            ),
+            reply_to_message_id: int | None = None,
+            **kwargs: Any
+
+    ) -> Message:
+        return await cls.answer(
+            event=event.message,
+            text=text if text is not None else cls.text,
+            parse_mode=parse_mode,
+            entities=entities,
+            link_preview_options=link_preview_options,
+            disable_notification=disable_notification,
+            protect_content=protect_content,
+            allow_paid_broadcast=allow_paid_broadcast,
+            message_effect_id=message_effect_id,
+            reply_parameters=reply_parameters,
+            reply_markup=reply_markup if reply_markup else cls.reply_markup,
+            allow_sending_without_reply=allow_sending_without_reply,
+            disable_web_page_preview=disable_web_page_preview,
+            reply_to_message_id=reply_to_message_id,
+            **kwargs
+        )
+
