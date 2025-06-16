@@ -8,7 +8,7 @@ from aiogram.types import (InlineKeyboardButton,
                            ReplyKeyboardMarkup)
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 
-from core.methods import MessageMethods, CallbackQueryMethods
+from core.methods import CallbackQueryMethods
 
 BUTTON_TYPES = (
     InlineKeyboardButton,
@@ -19,11 +19,11 @@ BUTTON_TYPES = (
 
 
 class WindowBuilder(
-    # MessageMethods,
     CallbackQueryMethods
 ):
     text: str
     photo: str
+    file: str
     sizes: Iterable[int] = (1,)
     repeat: bool = False
     __builder__: Dict[Type, Union[Type[InlineKeyboardBuilder], Type[ReplyKeyboardBuilder]]] = {
@@ -42,11 +42,12 @@ class WindowBuilder(
     @classmethod
     def __build_keyboard(
             cls,
-            buttons: Union[
-                List[InlineKeyboardButton],
-                List[KeyboardButton],
+            buttons: List[
+                Union[InlineKeyboardButton,
+                KeyboardButton,
                 ReplyKeyboardRemove,
                 ForceReply
+                ]
             ]) -> Union[
         InlineKeyboardMarkup,
         ReplyKeyboardMarkup,
@@ -54,19 +55,19 @@ class WindowBuilder(
         ForceReply,
         None
     ]:
-        if isinstance(buttons, list):
-            if len(buttons) > 0:
-                button_type = type(buttons[0])
-                builder_cls: Union[
-                    Type[InlineKeyboardBuilder],
-                    Type[ReplyKeyboardBuilder]] = cls.__builder__.get(button_type)
-                if not builder_cls:
-                    return None
-                builder = builder_cls()
-                builder.add(*buttons)
-                return builder.adjust(*cls.sizes, repeat=cls.repeat).as_markup(resize_keyboard=True)
-            return None
-        elif isinstance(buttons, (ReplyKeyboardRemove, ForceReply)):
-            return buttons
+
+        if buttons:
+            button_type = type(buttons[0])
+            if isinstance(buttons[0], (ReplyKeyboardRemove, ForceReply)):
+                return buttons[0]
+            builder_cls: Union[
+                Type[InlineKeyboardBuilder],
+                Type[ReplyKeyboardBuilder]] = cls.__builder__.get(button_type)
+            if not builder_cls:
+                return None
+            builder = builder_cls()
+            builder.add(*buttons)
+            return builder.adjust(*cls.sizes, repeat=cls.repeat).as_markup(resize_keyboard=True)
         return None
+
 
