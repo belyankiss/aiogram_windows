@@ -1,4 +1,14 @@
-from typing import Optional, Union, List, Tuple, Self
+"""
+default_keyboard_builder.py
+
+Universal keyboard builder for aiogram bots, based on Pydantic models.
+Easily add, format, and manage Telegram inline/reply keyboards.
+
+Author: your_name
+License: MIT
+"""
+
+from typing import Optional, Union, Tuple, Any, Dict
 
 from aiogram.types import (
     InlineKeyboardMarkup,
@@ -7,11 +17,9 @@ from aiogram.types import (
     ForceReply,
     InlineKeyboardButton,
     KeyboardButton
-    )
+)
 from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
-
 from pydantic import BaseModel, Field
-
 
 TYPE_KEYBOARDS = (InlineKeyboardButton, KeyboardButton)
 TYPE_ONCE_KEYBOARDS = (ReplyKeyboardRemove, ForceReply)
@@ -21,63 +29,149 @@ BUILDERS = {
 }
 
 class DefaultKeyboardBuilder(BaseModel):
-    buttons: Optional[Union[List[InlineKeyboardButton], List[KeyboardButton]]] = Field(default_factory=list)
+    """
+    Universal keyboard builder for aiogram Telegram bots.
+
+    Features:
+        - Supports both Inline and Reply keyboards.
+        - Dict-based storage for flexible button management.
+        - Format any button text/callback_data with runtime variables.
+        - Safe, non-mutating formatting.
+        - Easily integrates as a base or mixin class.
+    """
+
+    buttons: Dict[Union[str, int], Union[InlineKeyboardButton, KeyboardButton]] = Field(default_factory=dict)
+    """
+    All keyboard buttons.
+    Key: usually button text or unique id.
+    Value: aiogram button object (InlineKeyboardButton or KeyboardButton).
+    """
+
     reply_markup: Optional[Union[InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply]] = None
-    sizes: Tuple[int, ...] = 1,
+    """Resulting aiogram markup object for message methods."""
+
+    sizes: Tuple[int, ...] = (1,)
+    """Keyboard layout: how many buttons per row."""
+
     repeat: bool = False
+    """Whether to repeat row sizes cyclically."""
 
-    def model_post_init(self, __context, **kwargs) -> Self:
-        for key, value in self.__class__.model_fields.items():
-            if isinstance(value.default, TYPE_KEYBOARDS):
-                new_button = self._format_buttons(value.default, **kwargs)
-                self.buttons.append(new_button)
-            elif isinstance(value.default, TYPE_ONCE_KEYBOARDS):
-                self.reply_markup = value.default
-                return self
-        return self._build_keyboard(*self.buttons, **kwargs)
+    _kwargs: Any = None
+    """Internal storage for formatting kwargs."""
 
-    @staticmethod
-    def _format_buttons(obj: Union[InlineKeyboardButton, KeyboardButton], **kwargs) -> Union[InlineKeyboardButton, KeyboardButton]:
-        try:
-            if isinstance(obj, KeyboardButton):
-                obj = KeyboardButton(text=obj.text.format_map(kwargs))
-            else:
-                obj = InlineKeyboardButton(
-                    text=obj.text.format_map(kwargs),
-                    callback_data=obj.callback_data.format_map(kwargs)
-                )
-            return obj
-        except KeyError:
-            return obj
+    _clear: bool = False
+    """Flag for full keyboard replacement in add_buttons/format_buttons."""
 
-    def _build_keyboard(self, *buttons, **kwargs):
-        builder = None
-        if buttons:
-            builder = BUILDERS.get(type(buttons[0]), None)
-        if builder:
-            instance_builder = builder()
-            instance_builder.add(*buttons)
-            self.reply_markup = instance_builder.adjust(*self.sizes, repeat=self.repeat).as_markup(**kwargs)
-        return self
+    _adder: bool = False
+    """Internal flag to distinguish between normal and add_buttons initialization."""
+
+    _formatter: bool = False
+    """Internal flag to distinguish between normal and format_buttons initialization."""
+
+    def model_post_init(self, context: Any, /) -> None:
+        """
+        Pydantic post-init hook.
+        Automatically builds the keyboard after model creation or after changes.
+        """
+        if not self._adder and not self._formatter:
+            self._get_buttons()
+        self.reply_markup = self._build_keyboard()
 
     def add_buttons(
-            self,
-            *buttons: Union[InlineKeyboardButton, KeyboardButton],
-            replace: bool = False,
-            **kwargs
+        self,
+        *buttons: Union[InlineKeyboardButton, KeyboardButton],
+        replace_keyboard: bool = False
     ):
-        self.reply_markup = None
-        if replace and buttons:
-            return self._build_keyboard(*buttons, **kwargs)
-        self.buttons.clear()
-        self.buttons.extend(buttons)
-        return self.model_post_init(None, **kwargs)
+        """
+        Add one or more buttons to the keyboard.
 
+        Args:
+            *buttons: Any number of aiogram button objects.
+            replace_keyboard: If True, the keyboard is cleared and replaced with these buttons only.
 
+        Returns:
+            Self (for method chaining).
+        """
+        self._adder = True
+        self._get_buttons()
+        if replace_keyboard:
+            self._clear = replace_keyboard
+            self.buttons.clear()
+        for button in buttons:
+            self.buttons[button.text] = button
+        if self._kwargs:
+            self.format_buttons(**self._kwargs)
+        self.model_post_init(None)
+        self._adder = False
+        return self
 
+    def format_buttons(self, **kwargs):
+        """
+        Format all button fields using provided kwargs (for template substitution).
 
+        Args:
+            **kwargs: Variables for string formatting (e.g., username='Oleg').
 
+        Returns:
+            Self (for method chaining).
+        """
+        self._formatter = True
+        self._kwargs = kwargs
+        new_buttons = {}
+        if not self._clear:
+            self._get_buttons()
+        for key, button in self.buttons.items():
+            new_buttons[key] = self._sub_format(button)
+        self.buttons = new_buttons
+        self.model_post_init(None)
+        self._formatter = False
+        return self
 
+    def _sub_format(self, button: Union[InlineKeyboardButton, KeyboardButton]) -> Union[InlineKeyboardButton, KeyboardButton]:
+        """
+        Create a formatted copy of a button with values substituted from self._kwargs.
 
+        Args:
+            button: The original button object.
 
+        Returns:
+            A new button object with formatted fields.
+        """
+        new_model = {}
+        old_model = button.model_dump()
+        for key, value in old_model.items():
+            try:
+                new_model[key] = value.format_map(self._kwargs)
+            except (KeyError, AttributeError):
+                new_model[key] = value
+        return type(button)(**new_model)
+
+    def _build_keyboard(self):
+        """
+        Build the final aiogram keyboard markup from all current buttons.
+
+        Returns:
+            The aiogram keyboard markup object, or None if no buttons.
+        """
+        builder = None
+        buttons = None
+        if self.buttons:
+            buttons = list(self.buttons.values())
+            builder = BUILDERS.get(type(buttons[0]), None)
+        if builder:
+            builder = builder()
+            builder.add(*buttons)
+            return builder.adjust(*self.sizes, repeat=self.repeat).as_markup(resize_keyboard=True)
+        return builder
+
+    def _get_buttons(self):
+        """
+        Collect all default (class-declared) buttons into the .buttons dictionary.
+        """
+        for key, value in self.__class__.model_fields.items():
+            if isinstance(value.default, TYPE_ONCE_KEYBOARDS):
+                self.reply_markup = value.default
+                break
+            elif isinstance(value.default, TYPE_KEYBOARDS):
+                self.buttons[key] = value.default
 

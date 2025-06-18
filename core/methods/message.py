@@ -1,26 +1,35 @@
-from typing import Any
+from typing import Any, Optional, Union
 
 from aiogram.types import (Message,
+                           CallbackQuery,
                            MessageEntity,
                            LinkPreviewOptions,
                            ReplyParameters,
                            InlineKeyboardMarkup,
                            ReplyKeyboardMarkup,
                            ReplyKeyboardRemove,
-                           InlineKeyboardButton,
-KeyboardButton,
-                           ForceReply)
+                           ForceReply,
+                           InlineKeyboardButton
+                           )
 
 from aiogram.client.default import Default
 
 from core.metacore import DefaultKeyboardBuilder
 
+class TextForms(DefaultKeyboardBuilder):
+    text: Optional[str] = None
+    photo: Optional[str] = None
+    file: Optional[str] = None
 
+class MessageMethods(TextForms):
 
+    event: Union[Message, CallbackQuery]
+    show_alert: bool = False
 
-class MessageMethods(DefaultKeyboardBuilder):
-
-    event: Message
+    def _get_method(self) -> Message:
+        if isinstance(self.event, CallbackQuery):
+            return self.event.message
+        return self.event
 
     async def answer(self,
                      text: str = None,
@@ -40,9 +49,20 @@ class MessageMethods(DefaultKeyboardBuilder):
                          "link_preview_is_disabled"
                      ),
                      reply_to_message_id: int | None = None,
+                     url: str | None = None,
+                     cache_time: int | None = None,
                      **kwargs: Any
                      ) -> Message:
-        return await self.event.answer(
+        if self.show_alert:
+            return await self.alert(
+                text=text if text is not None else self.text.format_map(kwargs),
+                show_alert=self.show_alert,
+                url=url,
+                cache_time=cache_time,
+                **kwargs
+            )
+        event = self._get_method()
+        return await event.answer(
             text=text if text is not None else self.text.format_map(kwargs),
             parse_mode=parse_mode,
             entities=entities,
@@ -59,9 +79,57 @@ class MessageMethods(DefaultKeyboardBuilder):
             **kwargs
         )
 
+    async def alert(
+            self,
+            text: str | None = None,
+            show_alert: bool | None = None,
+            url: str | None = None,
+            cache_time: int | None = None,
+            **kwargs: Any
+    ) -> Message:
+        return await self.event.answer(
+            text=text if text is not None else self.text.format_map(kwargs),
+            show_alert=show_alert,
+            url=url,
+            cache_time=cache_time,
+            **kwargs
+        )
+
+    async def edit_text(
+            self,
+            text: Optional[str] = None,
+            inline_message_id: str | None = None,
+            parse_mode: str | Default | None = Default("parse_mode"),
+            entities: list[MessageEntity] | None = None,
+            link_preview_options: LinkPreviewOptions | Default | None = Default(
+                "link_preview"
+            ),
+            reply_markup: InlineKeyboardMarkup | None = None,
+            disable_web_page_preview: bool | Default | None = Default(
+                "link_preview_is_disabled"
+            ),
+            **kwargs: Any
+    ):
+        if isinstance(self.event, Message):
+            raise AttributeError(f"event must be Message type")
+        event = self._get_method()
+        return await event.edit_text(
+            text=text if text is not None else self.text.format_map(kwargs),
+            inline_message_id=inline_message_id,
+            parse_mode=parse_mode,
+            entities=entities,
+            link_preview_options=link_preview_options,
+            reply_markup=reply_markup if reply_markup else self.reply_markup,
+            disable_web_page_preview=disable_web_page_preview,
+            **kwargs
+        )
+
+
+
+
 
 
 class Hello(MessageMethods):
     text: str = "Hello {username}"
-    one: KeyboardButton = InlineKeyboardButton(text="hello {username}", callback_data="call:{but}")
+    one: InlineKeyboardButton = InlineKeyboardButton(text="Hello", callback_data="fee")
 
