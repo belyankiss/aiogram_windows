@@ -4,7 +4,7 @@ default_keyboard_builder.py
 Universal keyboard builder for aiogram bots, based on Pydantic models.
 Easily add, format, and manage Telegram inline/reply keyboards.
 
-Author: your_name
+Author: belyankiss
 License: MIT
 """
 
@@ -48,7 +48,7 @@ class DefaultKeyboardBuilder(BaseModel):
     """
 
     reply_markup: Optional[Union[InlineKeyboardMarkup, ReplyKeyboardMarkup, ReplyKeyboardRemove, ForceReply]] = None
-    """Resulting aiogram markup object for message methods."""
+    """Resulting aiogram markup object for message models."""
 
     sizes: Tuple[int, ...] = (1,)
     """Keyboard layout: how many buttons per row."""
