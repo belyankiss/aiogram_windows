@@ -1,17 +1,21 @@
 [project]
-name = "aiogram-windows"
+name = "aiogram_windows"
 version = "0.1.0"
-description = "Simple telegram windows"
+description = "Simple and universal keyboard/message builder for aiogram bots."
 authors = [
-    {name = "belyankiss",email = "belyankiss@gmail.com"}
+    {name = "belyankiss", email = "belyankiss@gmail.com"}
 ]
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "aiogram (>=3.20.0.post0,<4.0.0)"
+    "aiogram >=3.20.0.post0,<4.0.0",
+    "pydantic >=2.6,<3.0"
 ]
 
+homepage = "https://github.com/belyankiss/aiogram_windows"
+repository = "https://github.com/belyankiss/aiogram_windows"
+keywords = ["telegram", "aiogram", "bot", "keyboard", "pydantic"]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
