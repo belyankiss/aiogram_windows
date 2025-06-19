@@ -22,6 +22,10 @@ def _get_field(self: TextForms) -> str | None:
         return f"document:{self.file}"
     elif self.video:
         return f"video:{self.video}"
+    elif self.animation:
+        return f"animation:{self.animation}"
+    elif self.audio:
+        return f"audio:{self.audio}"
     return None
 
 def _save_in_cache(file_name: str, self: TextForms, result: Message):
@@ -35,6 +39,13 @@ def _save_in_cache(file_name: str, self: TextForms, result: Message):
         file_id = result.document.file_id
     elif self.video and getattr(result, "video", None):
         file_id = result.video.file_id
+    elif self.animation and (getattr(result, "animation", None) or getattr(result, "video", None)):
+        if result.animation:
+            file_id = result.animation.file_id
+        else:
+            file_id = result.video.file_id
+    elif self.audio and getattr(result, "audio", None):
+        file_id = result.audio.file_id
     if file_id:
         use_cache(file_name, file_id)
 
