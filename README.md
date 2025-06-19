@@ -23,11 +23,18 @@ Send, edit, and manage all kinds of Telegram messages and keyboards — as Pytho
 ## 🚀 Quick Start
 
 ```python
-from aiogram import Bot, Dispatcher, F
 from aiogram.types import Message, InlineKeyboardButton
 from aiogram.filters import CommandStart
 
-from aiogram_windows import TelegramWindow
+from aiogram_windows import TelegramWindow, BotModel
+
+from my_routers import main_router
+
+bot = BotModel(token="YOUR_BOT_TOKEN")
+dp = bot.dispatcher
+
+bot.include_router(main_router)
+
 
 class HelloWindow(TelegramWindow):
     text: str = "Hello, {username}!"
@@ -40,6 +47,11 @@ class HelloWindow(TelegramWindow):
 async def hello_handler(msg: Message):
     window = HelloWindow(event=msg)
     await window.answer(username=msg.from_user.username, user_id=msg.from_user.id)
+    
+    
+if __name__ == "__main__":
+    bot.run()
+
 ```
 
 ## 🎛️ Keyboard Example
