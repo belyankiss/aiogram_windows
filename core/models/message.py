@@ -16,7 +16,7 @@ from aiogram.types import (Message,
 from aiogram.client.default import Default
 
 from ..cache import cache
-from text import TextForms
+from .text import TextForms
 
 
 class MessageMethods(TextForms):
