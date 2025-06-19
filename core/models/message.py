@@ -15,8 +15,8 @@ from aiogram.types import (Message,
 
 from aiogram.client.default import Default
 
-from core.cache import cache
-from core.models.text import TextForms
+from ..cache import cache
+from text import TextForms
 
 
 class MessageMethods(TextForms):

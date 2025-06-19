@@ -1,7 +1,7 @@
 from typing import Optional
 
-from core.metacore import DefaultKeyboardBuilder
-from core.models.files import FileForm
+from keyboard_builder import DefaultKeyboardBuilder
+from files import FileForm
 
 
 class TextForms(DefaultKeyboardBuilder, FileForm):

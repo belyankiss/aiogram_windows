@@ -1,6 +1,6 @@
 from functools import wraps
 from aiogram.types import Message
-from core.models.text import TextForms
+from models.text import TextForms
 
 FILE_CACHE = {}
 
