@@ -1,6 +1,6 @@
 [project]
 name = "simple_aiogram"
-version = "0.1.0b1"
+version = "0.1.0b2"
 description = "Simple and universal keyboard/message builder for aiogram bots."
 authors = [
     {name = "belyankiss", email = "belyankiss@gmail.com"}
@@ -18,10 +18,13 @@ dependencies = [
     "aiogram >=3.20.0.post0,<4.0.0",
     "pydantic >=2.6,<3.0"
 ]
-
-homepage = "https://github.com/belyankiss/aiogram_windows"
-repository = "https://github.com/belyankiss/aiogram_windows"
 keywords = ["telegram", "aiogram", "bot", "keyboard", "pydantic"]
+
+[project.urls]
+Homepage = "https://github.com/belyankiss/aiogram_windows"
+Repository = "https://github.com/belyankiss/aiogram_windows"
+Issues = "https://github.com/belyankiss/aiogram_windows/issues"
+Documentation = "https://github.com/belyankiss/aiogram_windows#readme"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
