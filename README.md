@@ -26,7 +26,7 @@ Send, edit, and manage all kinds of Telegram messages and keyboards — as Pytho
 from aiogram.types import Message, InlineKeyboardButton
 from aiogram.filters import CommandStart
 
-from src.simple_aiogram import TelegramWindow, BotModel
+from simple_aiogram import TelegramWindow, BotModel
 
 from my_routers import main_router
 
