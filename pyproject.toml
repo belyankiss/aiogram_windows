@@ -1,6 +1,6 @@
 [project]
 name = "simple_aiogram"
-version = "0.1.0b0"
+version = "0.1.0b1"
 description = "Simple and universal keyboard/message builder for aiogram bots."
 authors = [
     {name = "belyankiss", email = "belyankiss@gmail.com"}
