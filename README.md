@@ -1,10 +1,10 @@
-# aiogram_windows
+# simple-aiogram
 
 **Powerful, declarative message and keyboard builder for aiogram bots, powered by Pydantic models.  
 Send, edit, and manage all kinds of Telegram messages and keyboards — as Python classes.**
 
-[![PyPI](https://img.shields.io/pypi/v/aiogram-windows?style=flat-square)](https://pypi.org/project/aiogram-windows/)
-[![MIT License](https://img.shields.io/github/license/belyankiss/aiogram_windows?style=flat-square)](LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/simple-aiogram?style=flat-square)](https://pypi.org/project/simple-aiogram/)
+[![MIT License](https://img.shields.io/github/license/belyankiss/simple-aiogram?style=flat-square)](LICENSE)
 
 ---
 
@@ -26,7 +26,7 @@ Send, edit, and manage all kinds of Telegram messages and keyboards — as Pytho
 from aiogram.types import Message, InlineKeyboardButton
 from aiogram.filters import CommandStart
 
-from aiogram_windows import TelegramWindow, BotModel
+from simple_aiogram import TelegramWindow, BotModel
 
 from my_routers import main_router
 
@@ -43,12 +43,13 @@ class HelloWindow(TelegramWindow):
         callback_data="clicked_{user_id}"
     )
 
+
 @dp.message(CommandStart())
 async def hello_handler(msg: Message):
     window = HelloWindow(event=msg)
     await window.answer(username=msg.from_user.username, user_id=msg.from_user.id)
-    
-    
+
+
 if __name__ == "__main__":
     bot.run()
 
@@ -111,7 +112,7 @@ await MediaWindow(event=msg).answer_photo()
 
 **aiogram docs**
 
-## ⚡️ Why aiogram_windows?
+## ⚡️ Why simple-aiogram?
 - **Cut boilerplate and repetitive keyboard code.**
 
 - **Add message logic as Python classes — not spaghetti handlers.**

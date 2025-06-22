@@ -1,5 +1,5 @@
 """
-aiogram_windows/core/bot.py
+simple_aiogram/core/bot.py
 
 Minimalistic but powerful wrapper for aiogram3, for quick project bootstrap.
 Author: belyankiss
@@ -26,7 +26,7 @@ class BotModel:
         - Exposes dispatcher and bot via property.
 
     Example:
-        from aiogram_windows.core.bot import BotModel
+        from simple_aiogram.core.bot import BotModel
 
         bot = BotModel(token="YOUR_BOT_TOKEN")
         bot.include_router(my_router)

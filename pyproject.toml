@@ -1,6 +1,6 @@
 [project]
-name = "aiogram_windows"
-version = "0.1.0"
+name = "simple-aiogram"
+version = "0.1.0a0"
 description = "Simple and universal keyboard/message builder for aiogram bots."
 authors = [
     {name = "belyankiss", email = "belyankiss@gmail.com"}
@@ -8,6 +8,12 @@ authors = [
 license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Framework :: AsyncIO",
+    "Operating System :: OS Independent"
+]
 dependencies = [
     "aiogram >=3.20.0.post0,<4.0.0",
     "pydantic >=2.6,<3.0"
@@ -20,3 +26,6 @@ keywords = ["telegram", "aiogram", "bot", "keyboard", "pydantic"]
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+packages = [{ include = "aiogram_windows" }]
