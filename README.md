@@ -4,7 +4,7 @@
 Send, edit, and manage all kinds of Telegram messages and keyboards — as Python classes.**
 
 [![PyPI](https://img.shields.io/pypi/v/simple_aiogram?style=flat-square)](https://pypi.org/project/simple_aiogram/)
-[![MIT License](https://img.shields.io/github/license/belyankiss/simple_aiogram?style=flat-square)](LICENSE)
+[![MIT License](https://img.shields.io/github/license/belyankiss/aiogram_windows?style=flat-square)](LICENSE)
 
 ---
 
@@ -28,12 +28,12 @@ from aiogram.filters import CommandStart
 
 from simple_aiogram import TelegramWindow, BotModel
 
-from my_routers import main_router
+from my_routers import example_router
 
 bot = BotModel(token="YOUR_BOT_TOKEN")
 dp = bot.dispatcher
 
-bot.include_router(main_router)
+bot.include_router(example_router)
 
 
 class HelloWindow(TelegramWindow):
@@ -47,7 +47,8 @@ class HelloWindow(TelegramWindow):
 @dp.message(CommandStart())
 async def hello_handler(msg: Message):
     window = HelloWindow(event=msg)
-    await window.answer(username=msg.from_user.username, user_id=msg.from_user.id)
+    window.format_buttons(user_id=msg.from_user.id)
+    await window.answer(username=msg.from_user.username)
 
 
 if __name__ == "__main__":
@@ -59,16 +60,25 @@ if __name__ == "__main__":
 ### Inline or Reply Keyboard — just declare buttons as class attributes:
 
 ```python
-from aiogram.types import InlineKeyboardButton, KeyboardButton
+from aiogram import Router, F
+from aiogram.types import InlineKeyboardButton, Message
 
-class KeyboardExample(MessageMethods):
+from simple_aiogram import TelegramWindow
+
+example_router = Router(name="example")
+
+class KeyboardExample(TelegramWindow):
     text: str = "Choose:"
     btn1: InlineKeyboardButton = InlineKeyboardButton(text="Yes", callback_data="yes_{user_id}")
     btn2: InlineKeyboardButton = InlineKeyboardButton(text="No", callback_data="no_{user_id}")
     btn3: InlineKeyboardButton = InlineKeyboardButton(text="Maybe", callback_data="maybe_{user_id}")
 
 # Send with auto-built keyboard
-await KeyboardExample(event=msg).answer(user_id=msg.from_user.id)
+@example_router.message(F.text.contains("some text"))
+async def hello_handler(msg: Message):
+    kb = KeyboardExample(event=msg)
+    kb.format_buttons(user_id=msg.from_user.id)
+    await kb.answer()
 ```
 
 ### Or add buttons dynamically:
@@ -78,14 +88,15 @@ window = HelloWindow(event=msg)
 window.add_buttons(
     InlineKeyboardButton(text="Profile", callback_data="profile_{user_id}")
 )
-await window.answer(username=msg.from_user.username, user_id=msg.from_user.id)
+window.format_buttons(user_id=msg.from_user.id)
+await window.answer(username=msg.from_user.username)
 ```
 
 ## 📦 Sending Media with File Caching
 ### Send a photo/document/audio/video and automatically cache file_id:
 
 ```python
-class MediaWindow(MessageMethods):
+class MediaWindow(TelegramWindow):
     text: str = "Here is your file"
     photo: str = "/path/to/image.png"
 
