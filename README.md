@@ -1,10 +1,10 @@
-# simple-aiogram
+# simple_aiogram
 
 **Powerful, declarative message and keyboard builder for aiogram bots, powered by Pydantic models.  
 Send, edit, and manage all kinds of Telegram messages and keyboards — as Python classes.**
 
-[![PyPI](https://img.shields.io/pypi/v/simple-aiogram?style=flat-square)](https://pypi.org/project/simple-aiogram/)
-[![MIT License](https://img.shields.io/github/license/belyankiss/simple-aiogram?style=flat-square)](LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/simple_aiogram?style=flat-square)](https://pypi.org/project/simple_aiogram/)
+[![MIT License](https://img.shields.io/github/license/belyankiss/simple_aiogram?style=flat-square)](LICENSE)
 
 ---
 
@@ -26,7 +26,7 @@ Send, edit, and manage all kinds of Telegram messages and keyboards — as Pytho
 from aiogram.types import Message, InlineKeyboardButton
 from aiogram.filters import CommandStart
 
-from simple_aiogram import TelegramWindow, BotModel
+from src.simple_aiogram import TelegramWindow, BotModel
 
 from my_routers import main_router
 
@@ -112,7 +112,7 @@ await MediaWindow(event=msg).answer_photo()
 
 **aiogram docs**
 
-## ⚡️ Why simple-aiogram?
+## ⚡️ Why simple_aiogram?
 - **Cut boilerplate and repetitive keyboard code.**
 
 - **Add message logic as Python classes — not spaghetti handlers.**

@@ -1,6 +1,6 @@
 [project]
-name = "simple-aiogram"
-version = "0.1.0a0"
+name = "simple_aiogram"
+version = "0.1.0b0"
 description = "Simple and universal keyboard/message builder for aiogram bots."
 authors = [
     {name = "belyankiss", email = "belyankiss@gmail.com"}
@@ -28,4 +28,4 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-packages = [{ include = "simple-aiogram" }]
+packages = [{ include = "simple_aiogram" }]
