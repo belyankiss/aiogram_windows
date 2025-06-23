@@ -83,7 +83,10 @@ class DefaultKeyboardBuilder(BaseModel):
         Automatically builds the keyboard after model creation or after changes.
         """
         if not self._adder and not self._formatter:
-            self._get_buttons()
+            kb = self._get_buttons()
+            if kb is not None:
+                self.reply_markup = kb
+                return
         self.reply_markup = self._build_keyboard()
 
     def add_buttons(
@@ -189,13 +192,13 @@ class DefaultKeyboardBuilder(BaseModel):
             return builder.adjust(*self.sizes, repeat=self.repeat).as_markup(resize_keyboard=True)
         return None
 
-    def _get_buttons(self) -> None:
+    def _get_buttons(self) -> Union[ReplyKeyboardRemove, ForceReply, None]:
         """
         Collect all default (class-declared) buttons into the .buttons dictionary.
         """
         for key, value in self.__class__.model_fields.items():
             if isinstance(value.default, TYPE_ONCE_KEYBOARDS):
-                self.reply_markup = value.default
-                break
+                return value.default
             elif isinstance(value.default, TYPE_KEYBOARDS):
                 self.buttons[key] = value.default
+        return None
